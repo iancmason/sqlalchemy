@@ -5,6 +5,7 @@ from infrastructure.numbers import try_int
 from infrastructure.switchlang import switch
 from data import session_factory
 from services import data_service
+import import_data
 
 
 user = None
@@ -31,8 +32,7 @@ def setup_db():
     global user
     session_factory.global_init('hover_share.sqlite')
     session_factory.create_tables()
-    # todo setup the setup_db
-    # 3. import data
+    import_data.import_if_empty()
     user = data_service.get_default_user()
 
 
