@@ -3,6 +3,8 @@ import sys
 from typing import List
 from infrastructure.numbers import try_int
 from infrastructure.switchlang import switch
+from data import session_factory
+from services import data_service
 
 
 user = None
@@ -26,12 +28,12 @@ def main():
 
 
 def setup_db():
-    pass
+    global user
+    session_factory.global_init('hover_share.sqlite')
+    session_factory.create_tables()
     # todo setup the setup_db
-    # 1. initialize the connection / engine
-    # 2. create the tables
     # 3. import data
-    # 4. set default user
+    user = data_service.get_default_user()
 
 
 def rent_a_scooter():

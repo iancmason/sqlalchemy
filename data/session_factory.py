@@ -6,7 +6,7 @@ from db import db_folder
 __engine__ = None
 __factory = None
 
-def global init(db_name: str):
+def global_init(db_name: str):
     global __engine, __factory
 
     if __factory:
@@ -16,7 +16,7 @@ def global init(db_name: str):
     __engine = sqlalchemy.create_engine(conn_str, echo=False)
     __factory = sqlalchemy.orm.sessionmaker(bind=__engine)
 
-def create tables():
+def create_tables():
     if not __engine:
         raise Exception("You have not called global_init()")
 
@@ -26,4 +26,9 @@ def create tables():
     SqlAlchemyBase.metadata.create_all(__engine) #create all means find all the classes derived from sql alchemy base
 
 def create_session() -> sqlalchemy.orm.Session:
-    pass
+    if not __factory:
+        raise Exception('you have not called global_init()')
+
+    session : Session = __factory()
+    session.expire_on_commit = False
+    return session
