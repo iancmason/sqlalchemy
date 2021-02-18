@@ -1,14 +1,14 @@
 import datetime
 import sys
-from typing import List
+
+import import_data
+from data import session_factory
+from data.models.users import User
 from infrastructure.numbers import try_int
 from infrastructure.switchlang import switch
-from data import session_factory
 from services import data_service
-import import_data
 
-
-user = None
+user: User = None
 
 
 def main():
@@ -46,14 +46,19 @@ def rent_a_scooter():
         return
 
     scooter = scooters[chose_it]
-    # todo show book scooter
+
+    data_service.book_scooter(scooter, user, datetime.datetime.now())
 
 
 def find_available_scooters(suppress_header=False):
     if not suppress_header:
         print("********* Available scooters: ********* ")
 
-    parked_scooters = []
+    parked_scooters = data_service.parked_scooters()
+    for idx, s in enumerate(parked_scooters, start=1):
+        print(f"#{idx}. Loc: {s.location.street} {s.location.city}, "
+              f"{s.id} {s.model} VIN: {s.vin} with battery level {s.battery_level}%")
+
     # todo show parked scooters
     print()
     return parked_scooters
@@ -61,21 +66,27 @@ def find_available_scooters(suppress_header=False):
 
 def locate_our_scooters():
     print("********* Current location of our scooters ********* ")
-    rented_scooters = []
-    parked_scooters = []
+    rented_scooters = data_service.rented_scooters()
+    parked_scooters = data_service.parked_scooters()
 
     print(f"Out with clients [{len(rented_scooters)} scooters]:")
-    # todo show rented scooters
+    for s in rented_scooters:
+        print(f" {s.id} {s.model} VIN: {s.vin} with battery level {s.battery_level}%")
 
     print()
 
     print(f"Parked [{len(parked_scooters)} scooters]:")
-    # todo show parked scooters
+    for s in parked_scooters:
+        print(f"Loc: {s.location.street} {s.location.city}, "
+              f"{s.id} {s.model} VIN: {s.vin} with battery level {s.battery_level}%")
 
 
 def my_history():
     print('********* Your rental history ********* ')
     # todo show rentals
+    user_local = data_service.get_default_user()
+    for r in user_local.rentals:
+        print(f" * {r.start_time.date().isoformat()} {r.scooter.model}")
 
 
 def exit_app():
